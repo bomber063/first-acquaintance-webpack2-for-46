@@ -1,0 +1,22 @@
+{
+  "name": "46webpack2",
+  "version": "1.0.0",
+  "description": "* 为了解决前面出现众多分裂而横空出世的[webpack](https://www.webpackjs.com/) * 课上讲的 webpack 是 webapck 3，现在 webpack 已经升级到 4 了，配置方法不一样！请安装 webpack 的时候写成 webpack@3 * 比如  ``` npm i webpack@3 ``` * 如果你已经安装了 webpack@4，请先卸载然后再安装 webpack@3 ``` npm uninstall webpack@4 npm uninstall -g webpack@4 npm i webpack@3 npm i -g webpack@3 ``` * 本节主要是[first-acquaintance-webpack-for-46](https://github.com/bomber063/first-acquaintance-webpack-for-46)的进一步介绍关于webpack。 * 你可以选择删除前面的package命令，比如 ``` rm package.json ``` * 然后重新初始化package.json，比如 ``` npm init ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bomber063/first-acquaintance-webpack2-for-46.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bomber063/first-acquaintance-webpack2-for-46/issues"
+  },
+  "homepage": "https://github.com/bomber063/first-acquaintance-webpack2-for-46#readme",
+  "devDependencies": {
+    "webpack": "^3.12.0"
+  }
+}
