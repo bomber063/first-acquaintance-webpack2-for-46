@@ -65,9 +65,19 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-alert(1)
+"use strict";
+
+
+var a = 1;
+alert(a);
+
+var numbers = [1, 2, 3];
+var dou = numbers.map(function (number) {
+  return number * 2;
+});
+console.log(dou);
 
 /***/ })
 /******/ ]);

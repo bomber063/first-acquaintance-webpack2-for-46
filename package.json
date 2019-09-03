@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/bomber063/first-acquaintance-webpack2-for-46#readme",
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
     "webpack": "^3.12.0"
   }
 }

@@ -82,3 +82,83 @@ alert(1)
 /***/ })
 /******/ ]);
 ```
+### 接下来我们把单纯的拷贝来增加更多功能
+#### webpack babel可以转换let为var，箭头函数为普通函数
+* 在google上搜索webpack babel。然后可以找到[This README is for babel-loader v8 + Babel v7](https://github.com/babel/babel-loader)
+* 如果你的版本不是上面的最新版本，比如你是[Check the 7.x branch for docs with Babel v6](https://github.com/babel/babel-loader/tree/7.x)
+* 首先我们要知道@7代表第7个最高的版本，如果不写@就代表目前为止最高的版本。
+* 那么我们就先选择跟课程一样的版本吧，webpack 3.x | babel-loader >= 7.1，可以输入
+```
+npm install --save-dev babel-loader@7 babel-core babel-preset-env webpack
+```
+* 之后我们就可以看到package.json里面增加了
+```
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "webpack": "^3.12.0"
+  }
+```
+* 说明是符合前面webpack 3.x | babel-loader >= 7.1的要求，那么接下来的配置应该是没有问题的。
+* 然后在webpack.config.js里面增加
+```
+module: {
+  rules: [
+    {
+      test: /\.js$/,
+      exclude: /(node_modules|bower_components)/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['env']
+        }
+      }
+    }
+  ]
+}
+```
+* 我们在源文件里面，也就是index.js里面增加代码
+```
+let a=1
+alert(a)
+
+
+let numbers = [1,2,3]; 
+let dou = numbers.map((number)=>number*2); 
+console.log(dou);
+```
+* 在安装了npx的前提下，重新增加了webpack.config.js之后再次输入下面代码，
+```
+npx webpack
+```
+* 就会显示新的wepack的hash版本号，比如
+```
+$ npx webpack
+Hash: 3280599df1c7b516e09c
+Version: webpack 3.12.0
+Time: 518ms
+    Asset     Size  Chunks             Chunk Names
+bundle.js  2.64 kB       0  [emitted]  main
+   [0] ./src/index.js 146 bytes {0} [built]
+```
+* 我们在**看一下bundle.js就不是单纯的拷贝了，而是把let转换为了var,箭头函数转换为普通函数，还多了一个参数 __webpack_require__**
+```
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var a = 1;
+alert(a);
+
+var numbers = [1, 2, 3];
+var dou = numbers.map(function (number) {
+  return number * 2;
+});
+console.log(dou);
+
+/***/ })
+/******/ ]);
+```
+* **当然你也可以一个个的安装，比如先安装babel-loader，在安装babel-core，在安装babel-preset-env，不过这样你就需要一步步按照提示来安装，有的安装名字还需要google查询一下才能找到。**
