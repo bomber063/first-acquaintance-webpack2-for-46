@@ -301,4 +301,103 @@ exports.default = fn;
 3//console.log(3)
 2//y()
 ```
-* 这也就是app.js里面的代码执行的结果。
+* 这也就是app.js里面的代码(包括了module-1.js和module-2.js)执行的结果后得到bundles.js这样的模块化的结果。这样模块化可是使得文件之间可以互相依托和依赖。
+###  webpack的SCSS转换为CSS
+* google搜索webpack scss,可以找到[sass-loader](https://github.com/webpack-contrib/sass-loader)，之前的js对应babel-loader，现在这个scss对应的是sass-loader，是不是很相似,**都有一个loader**。
+* 找到就先安装sass-loader
+```
+npm install sass-loader node-sass webpack --save-dev
+```
+* 还需要安装css-loader和style-loader,**这个文档里面没有说清楚**
+```
+npm install css-loader style-loader
+```
+
+* 然后webpack.config.js新增代码
+```
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          'style-loader',
+          // Translates CSS into CommonJS
+          'css-loader',
+          // Compiles Sass to CSS
+          'sass-loader',
+        ],
+      },
+    ],
+  },
+};
+```
+* 完成后，这个时候我们去运行npx webpack是还不起作用的，还需要更改app.js引入scss这个模块。
+* 通过代码
+```
+import '../css/style.scss'//意思是引入style.scss
+```
+#### 再次webpack执行scss的时候报错
+* 运行npx webpack只有一直报下面的错
+```
+ERROR in ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss
+Module build failed: TypeError: this.getResolve is not a function
+    at Object.loader (D:\jirengu\github收集\46webpack2\node_modules\sass-loader\dist\index.js:52:26)
+ @ ./src/css/style.scss 1:14-124
+ @ ./src/app.js
+```
+* 经过查询这个链接——[解决npm安装node-sass太慢及编译错误问题](http://m.morecoder.com/article/1268346.html)找到对应的解决办法,因为安装的sass-loader的版本为最新8.0.0，查看网上资料说是版本过高导致编译错误。把项目package.json文件中sass-loader版本改为7.3.1，也就是重新安装sass-loader@7就解决了。
+```
+npm install sass-loader@7
+```
+* 解决了上面的错误之后再次运行npx webpack就可以出现下面的运行结果
+```
+$ npx webpack
+Hash: 8223d7c3ae60bc04ab00
+Version: webpack 3.12.0
+Time: 965ms
+    Asset   Size  Chunks             Chunk Names
+bundle.js  26 kB       0  [emitted]  main
+   [0] ./src/js/app.js 602 bytes {0} [built]
+   [1] ./src/js/module-1.js 189 bytes {0} [built]
+   [2] ./src/js/module-2.js 189 bytes {0} [built]
+   [3] ./src/css/style.scss 1.22 kB {0} [built]
+   [4] ./node_modules/css-loader!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss 5.35 kB {0} [built]
+    + 3 hidden modules
+```
+* 如果是用新版本的css-loader和style-loader比如 "css-loader": "^3.2.0","style-loader": "^1.0.0"的会显示+2 hidden modules
+```
+$ npx webpack
+Hash: ac65b79b398b27a04405
+Version: webpack 3.12.0
+Time: 752ms
+    Asset     Size  Chunks             Chunk Names
+bundle.js  14.1 kB       0  [emitted]  main
+   [0] ./src/js/app.js 602 bytes {0} [built]
+   [1] ./src/js/module-1.js 189 bytes {0} [built]
+   [2] ./src/js/module-2.js 189 bytes {0} [built]
+   [3] ./src/css/style.scss 453 bytes {0} [built]
+   [4] ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss 325 bytes {0} [built]
+    + 2 hidden modules
+
+```
+* 然后检查下网页，发现网页自动把style.scss转换为css，并且能够运行到dist目录下面的index.html的代码里面去，也就是自动添加到index.html的head标签里面增加了一个style标签来存这个代码。
+* 然后我们在检查下dist/js/bundle.js里面多了一些东西，比如
+```
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//意思是引入style.scss
+```
+* 再比如，还把字符串全部写出来了
+```
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(5)(false);
+// Module
+exports.push([module.i, "body{background-color:#EFEFEF}.topNavBar{padding:20px 0px;position:fixed;width:100%;transition:all 0.5s;color:#B7B7B7}.topNavBar.sticky{color:#3d4451;padding:10px 0px;position:fixed;width:100%;background:white;z-index:1;box-shadow:0px 0px 10px 0px rgba(0,0,0,0.25)}.topNavBar-inner{padding:0px 16px}.topNavBar .logo{font-family:'Arial Black';font-size:24px;text-decoration:none;padding-top:3px;padding-bottom:4px}*{margin:0px;padding:0px}[data-x].offset{transform:translateY(100px)}[data-x]{transform:translateY(0px);transition:all 0.5s}.topNavBar a .rs{color:#E6686A}.topNavBar a .card{color:#9A9DA2}body div div nav{padding-top:5px;float:right}body nav ul{margin:0px;padding:0px;position:relative}nav ul li a{position:relative}li.active>a::after,li.highlight>a::after{content:'';position:absolute;display:block;top:100%;left:0;width:100%;height:3px;background:#E06567;animation:meunSlide  0.3s}@keyframes meunSlide{0%{width:0%}100%{width:100%}}.topNavBar .menu>ul>li{list-style:none;float:left;padding:auto;margin-left:17px;margin-right:17px;position:relative}.topNavBar nav ul li a{font-weight:bold;font-size:12px;color:inherit;padding:5px;text-decoration:none;padding:5px 0px;border-top:3px solid transparent;border-bottom:3px solid transparent;display:block}.submenu{list-style:none;display:none;position:absolute;right:0;top:100%;background:white;color:#3d4451;box-shadow:0 0 5px 0 rgba(0,0,0,0.5)}li.active>.submenu{list-style:none;display:block;animation:submenuSlide 0.3s}@keyframes submenuSlide{0%{margin-right:100%}100%{margin-right:0%}}.submenu>li{white-space:nowrap;padding:5px 10px}.banner{height:515px;background-size:cover;background-position:center center}.mask{height:515px;background-color:rgba(0,0,0,0.8)}.userCard{max-width:940px;margin-left:auto;margin-right:auto;box-shadow:0px 1px 5px 0px rgba(0,0,0,0.5);margin-top:-340px}.puctureAndText{background-color:#FFFFFF;padding:50px}.picture{float:left}.text{float:left;margin-left:65px;width:470px}.welcome{color:#FFFFFF;background-color:#E6686A;padding:4px 16px;display:inline-block;position:relative;margin-bottom:10px}.triangle{border:10px solid red;display:block;border-right:10px solid green;border-left:10px solid blue;border-bottom:10px solid black;border-top:10px solid #E6686A;border-left-color:transparent;border-right-color:transparent;border-bottom-color:transparent;border-left-width:0px;position:absolute;left:4px;top:100%}h1{margin-top:18px}hr{height:0;border:none;border-top:1px solid #DEDEDE;margin:20px 0px}.text dt,.text dd{float:left;padding:5px 0px}.text dt{width:30%;font-weight:bold}.text dd{width:70%;color:#9DA0A7}.media{background-color:#E6686A;text-align:center}footer.media a{padding:5px 0px;margin:16px;display:inline-block;border-radius:50%;width:40px;line-height:30px}footer.media a:hover{background:#CF5D5F}.userCard svg{width:30px;height:30px;fill:white;vertical-align:top}.button{border:1px solid #CDCFD1;text-align:center;width:205px;font-weight:bold;font-size:14px;padding:19px 0px;margin:32px auto;display:block;color:#3D4451;text-decoration:none;transition:box-shadow 0.3s}.button:hover{box-shadow:0px 4px 13px 0px rgba(0,0,0,0.2)}.selfIntroduction{font-family:cursive;margin:auto;max-width:940px;text-align:center;font-size:21px;line-height:1.8}.skillT{margin-top:60px;max-width:940px;margin-left:auto;margin-right:auto}section h2{color:#3D4451;text-align:center;font-size:34px}section .skills{list-style:none;background:#FFFFFF;padding:42px 50px 10px;margin-top:30px;box-shadow:0px 1px 5px 0px rgba(0,0,0,0.5)}section .skills li{float:left;width:48%;box-sizing:border-box;overflow:hidden}section .skills li:nth-child(even){float:right}.bar1{height:5px;background:#FAE1E1;margin:4px 0px 40px 0px;border-radius:2px}.skillT .bar2{background:#E6686A;height:100%;width:40%;border-radius:2px;transform:translateX(0);transition:all 1s}.skillT.offset .bar2{transform:translateX(-100%)}h3{font-weight:normal;font-size:14px}.portfolio{text-align:center;max-width:940px;margin-left:auto;margin-right:auto;margin-top:60px}.portfolio ol{list-style:none}.portfolio nav{display:inline-block;margin-top:32px}.portfolio ol li{float:left;margin-left:40px;cursor:pointer}.portfolio ol li:first-child{margin-left:0px}section.portfolio .swiper-container{width:668px;height:501px;padding-bottom:30px}section.portfolio .swiper-slide{background:white}section.portfolio h2{margin-bottom:32px}section.portfolio .swiper-button-prev{background-color:white;width:44px;height:44px;border-radius:50%;top:48%;position:absolute;left:75px}section.portfolio .swiper-button-next{background-color:white;width:44px;height:44px;border-radius:50%;top:48%;position:absolute;right:75px}.swiper-pagination-bullet{width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;color:#000;opacity:1;background:rgba(0,0,0,0.2)}.swiper-pagination-bullet-active{color:#fff;background:#007aff}.jobs{position:relative;height:597px}#postMessageForm{margin:100px auto;width:700px}section ol#messageList{max-width:700px;margin:0 auto;list-style:none;background:#F5F5F5;border-top:1px solid #CCC}section ol#messageList li{padding:16px;border-bottom:1px solid #CCC}.clearfix::after{content:'';display:block;clear:both}\n", ""]);
+
+
+/***/ }),
+```
+
