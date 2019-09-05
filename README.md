@@ -598,3 +598,7 @@ bundle.js  14.3 kB       0  [emitted]  main
    [4] ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/src!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss 528 bytes {0} [built]
     + 2 hidden modules
 ```
+### 其他说明
+* 注意很多东西都是不停地升级，比如目前的webpack已经升级到版本4了，上面说的过程都是版本3的过程
+* [webpack：从入门到真实项目配置](https://zhuanlan.zhihu.com/p/30701816)
+* [关于 webpack 的面试题有哪些？](https://www.zhihu.com/question/266788138)
