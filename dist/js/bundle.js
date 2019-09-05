@@ -101,7 +101,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 function fn() {
-    console.log(1);
+    var a = 1;
+    console.log(a);
 }
 
 exports.default = fn; //如果有人引用就把默认的fn传出去
@@ -117,7 +118,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 function fn() {
-    console.log(2);
+    var b = 2;
+    console.log(b);
 }
 
 exports.default = fn; //如果有人引用就把默认的fn传出去
