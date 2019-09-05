@@ -19,14 +19,15 @@ module.exports = {
         }
       },
       {
-        test: /\.s[ac]ss$/i,
+        test: /\.s[ac]ss$/i,//如果发现你的后缀是sass或者scss
         use: [
           // Creates `style` nodes from JS strings
-          'style-loader',
+          'style-loader',//最后用style-loader加载，它会把JS字符串变成style标签
           // Translates CSS into CommonJS
-          'css-loader',
+          'css-loader',//然后用CSS-loader加载，它会把CSS变成JS字符串
           // Compiles Sass to CSS
-          'sass-loader',
+          'postcss-loader',//新增的
+          'sass-loader',//这里是倒着执行的，首先用sass-loader去加载，它会把sass变成css
         ],
       }
     ]

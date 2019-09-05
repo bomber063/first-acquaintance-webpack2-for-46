@@ -313,26 +313,47 @@ npm install sass-loader node-sass webpack --save-dev
 npm install css-loader style-loader
 ```
 
-* 然后webpack.config.js新增代码
+* 然后webpack.config.js新增代码（这是网站的新代码）
 ```
 module.exports = {
   module: {
     rules: [
       {
-        test: /\.s[ac]ss$/i,
+        test: /\.s[ac]ss$/i,//如果发现你的后缀是sass或者scss
         use: [
           // Creates `style` nodes from JS strings
-          'style-loader',
+          'style-loader',//最后用style-loader加载，它会把JS字符串变成style标签
           // Translates CSS into CommonJS
-          'css-loader',
+          'css-loader',//然后用CSS-loader加载，它会把CSS变成JS字符串
           // Compiles Sass to CSS
-          'sass-loader',
+          'sass-loader',//这里是倒着执行的，首先用sass-loader去加载，它会把sass变成css
         ],
       },
     ],
   },
 };
 ```
+* 老师课程上用的代码（这个是老的）是下面的，有一个大括号包起来，并且都有属性名loader,这个也是可以执行的。
+```
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.s[ac]ss$/i,//如果发现你的后缀是sass或者scss
+        use: [
+          // Creates `style` nodes from JS strings
+          {loader：'style-loader'},//最后用style-loader加载，它会把JS字符串变成style标签
+          // Translates CSS into CommonJS
+          {loader：'css-loader'},//然后用CSS-loader加载，它会把CSS变成JS字符串
+          // Compiles Sass to CSS
+          {loader：'sass-loader'},//这里是倒着执行的，首先用sass-loader去加载，它会把sass变成css
+        ],
+      },
+    ],
+  },
+};
+```
+* 上面的代码很像命令行的管道，loader：'sass-loader'的**输出**作为loader：'css-loader'的**输入**，而loader：'css-loader'的**输出**作为loader：'style-loader'的**输入**，最终'style-loader'会**输出**一个style标签到页面上
 * 完成后，这个时候我们去运行npx webpack是还不起作用的，还需要更改app.js引入scss这个模块。
 * 通过代码
 ```
@@ -382,6 +403,7 @@ bundle.js  14.1 kB       0  [emitted]  main
     + 2 hidden modules
 
 ```
+* **可以看到不仅运行.js的文件，还把style.scss加载到js里面去了**。
 * 然后检查下网页，发现网页自动把style.scss转换为css，并且能够运行到dist目录下面的index.html的代码里面去，也就是自动添加到index.html的head标签里面增加了一个style标签来存这个代码。
 * 然后我们在检查下dist/js/bundle.js里面多了一些东西，比如
 ```
@@ -400,4 +422,164 @@ exports.push([module.i, "body{background-color:#EFEFEF}.topNavBar{padding:20px 0
 
 /***/ }),
 ```
+* 也就是把scss文件里面的代码变成字符串，等js运行的时候会把这个字符串放到页面，也就是index.html里面的一个style标签里面，也就是前面**[比卡丘](https://github.com/bomber063/The-Moving-Pikachu-for-43)**那节类似的效果,CSS是可以用字符串的形式存储的。然后慢慢的显示在style标签里面。而这里的webpack就直接把这个css变成字符串，等运行的时候就把这个字符串放到html文件的style标签里面去。
+* 上面的代码针对**图片的问题暂时先不考虑**
+* **即使你是sacc文件也可以引入到js里面作为一个模块**，webpack针对所有的东西都可以看成一个模块，比如用[import](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/import)进来,至于引入后怎么出现在页面里面，暂时不用关心，而这里**需要知道的是一个js就可以搞定所有事情（包括CSS的进入）**，这条路线大概是，css->把css弄到bundle.js里面->运行bundle.js->把css弄到head的style标签里面
+* 这里面还可以增加cache-control可以增加页面打开效率，还可以混杂模式，也就是既有传统的文件CSS(比如一些简单的默认样式可以直接写出来)，又有webpack的css(比如一些动态的样式可以使用JS来增加。)，一般来说是先加载CSS之后再去加载JS，而如果用js来加载CSS，那么就使得CSS代码出现在JS之后，那么这个混杂模式就可以稍微解决。
+### 更多的兼容转换，比如增加前缀的postcss-loader
+* 比如我们有一个CSS代码(这里老师的用的是flex，因为autoprefixer已经不支持这个转换了，但是也有可能是大部分浏览器升级后默认支持无前缀的 CSS，那么 postcss 就不会再加前缀了！)
+```
+.example {
+    display: grid;
+    transition: all .5s;
+    user-select: none;
+    background: linear-gradient(to bottom, white, black);
+    display:flex;
+}
+```
+* 我们测试一个css里面的flex，可以通过[caniuse网站](https://caniuse.com/#search=flex)查询它对于不同的浏览器的兼容效果。可以看到IE浏览器是不支持的，如果你服务特别多的用户，无法保证用户用的是什么浏览器，难免有些用户就使用了IE浏览器，而你的CSS代码中正好也有上面的代码。那么就可以通过一些方式，比如
+1. 如果自己知道的话肯定可以写成**增加前缀**
+2. 自动化——[autoprefixer](https://autoprefixer.github.io),你可以用这个插件的在线版来查询对应的代码。选择Filter 
+last 4 version，也就是过滤掉得到所有浏览器的最早的四个版本，也就是最老的四个版本，如果这都能支持，那么其他的新版本的差不多都可以支持了。
+通过查询我们可以看到转换为
+```
+.example {
+    display: -ms-grid;
+    display: grid;
+    -webkit-transition: all .5s;
+    -o-transition: all .5s;
+    transition: all .5s;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    background: -webkit-gradient(linear, left top, left bottom, from(white), to(black));
+    background: -o-linear-gradient(top, white, black);
+    background: linear-gradient(to bottom, white, black);
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+}
+```
+3. 能否在webpack里面加第二条的插件呢？当然可以，我可以按照前面的说的webpack ...loader在google里面查询即可，那么这里就是查询webpack autoprefixer.loader得到[链接autoprefixer-loader](https://github.com/passy/autoprefixer-loader),但是这个链接里面有一句话
+```
+This module is deprecated. Autoprefixer official page recommends using postcss-loader instead.
+译文：不推荐使用此模块。Autoprefixer官方页面建议使用postcss-loader。
+```
+* 所以我们进入到[postcss-loader](https://github.com/postcss/postcss-loader)
+* 根据它的说明先安装
+```
+npm i -D postcss-loader
+```
+* 然后新增一个文件postcss.config.js,代码为
+```
+module.exports = {
+  parser: 'sugarss',
+  plugins: {
+    'postcss-import': {},
+    'postcss-preset-env': {},
+    'cssnano': {}
+  }
+}
+```
+* webpack.config.js增加
+```
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'postcss-loader' ]
+      }
+    ]
+  }
+}
+```
+#### 但是这里的postcss-loader的文档有点问题没有说明清楚
+* 运行npx webpack会报错，说找不到'postcss-import
+```
+Module build failed: Error: Loading PostCSS Plugin failed: Cannot find module 'postcss-import'
+```
+* 继续安装postcss-import
+```
+npm i postcss-import
+```
+* 再次运行npx webpack报错找不到postcss-preset-env(老师的视频是找不到postcss-cssnext)
+* 安装postcss-preset-env
+```
+npm i postcss-preset-env
+```
+* 再次运行npx webpack报错找不到cssnano(老师的视频是找不到sugarss)
+* 安装cssnano
+```
+npm i cssnano
+```
+* 再次运行npx webpack报错找不到sugarss(老师的视频这里已经没有要安装的了)
+* 安装sugarss
+```
+npm i sugarss
+```
+* 再次运行npx webpack报错如下
+```
+ERROR in ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/src!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss
+Module build failed: SyntaxError
 
+(1:5) Unnecessary curly bracket
+```
+* 这个问题就不是安装的问题了，就需要在google上搜这个报错——(1:5) Unnecessary curly bracket，可以得到[链接](https://github.com/postcss/postcss/issues/1062)找到一些信息比如
+```
+as the issue title suggest you are using a custom parser for plain .css files, the sugarss parser is not needed by default (see my comment above)
+译文：正如问题标题所示，您正在为普通.css文件使用自定义解析器，默认情况下不需要sugarss解析器(请参阅上面的注释)
+```
+* 所以需要把postcss.config.js文件里面的sugarss删除或者注释掉
+```
+module.exports = {
+    // parser: 'sugarss',//把它注释掉就不会报错了
+    plugins: {
+      'postcss-import': {},
+      'postcss-preset-env': {},
+      'cssnano': {}
+    }
+  }
+```
+* 现在我们再次运行npx webpack可以看到信息如下：
+```
+$ npx webpack
+Hash: e47862db3c17b81428e7
+Version: webpack 3.12.0
+Time: 2089ms
+    Asset     Size  Chunks             Chunk Names
+bundle.js  14.3 kB       0  [emitted]  main
+   [0] ./src/js/app.js 602 bytes {0} [built]
+   [1] ./src/js/module-1.js 189 bytes {0} [built]
+   [2] ./src/js/module-2.js 189 bytes {0} [built]
+   [3] ./src/css/style.scss 500 bytes {0} [built]
+   [4] ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/src!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss 528 bytes {0} [built]
+    + 2 hidden modules
+```
+* 我们在目录dist里面运行http-server打开网站，并打开开发者工具里面的Elements可以看到多了一个style，并且标签多了一些前缀，比如
+```
+body{
+  background:#ddd;
+  display:flex
+}
+section ol#messageList{
+  max-width:700px;
+  margin:0 auto;
+  list-style:none;
+  background:#f5f5f5;
+  border-top:1px solid #ccc
+}
+section ol#messageList li{
+  padding:16px;
+  border-bottom:1px solid #ccc
+}
+.example{
+  display:grid;
+  transition:all .5s;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  background:linear-gradient(180deg,#fff,#000)}
+```
