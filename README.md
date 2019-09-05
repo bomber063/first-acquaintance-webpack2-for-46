@@ -526,7 +526,7 @@ Module build failed: SyntaxError
 
 (1:5) Unnecessary curly bracket
 ```
-* 这个问题就不是安装的问题了，就需要在google上搜这个报错——(1:5) Unnecessary curly bracket，可以得到[链接](https://github.com/postcss/postcss/issues/1062)找到一些信息比如
+* 这个问题就不是安装的问题了，就需要在google上搜这个报错——(1:5) Unnecessary curly bracket，可以得到[bug的解决链接](https://github.com/postcss/postcss/issues/1062)找到一些信息比如
 ```
 as the issue title suggest you are using a custom parser for plain .css files, the sugarss parser is not needed by default (see my comment above)
 译文：正如问题标题所示，您正在为普通.css文件使用自定义解析器，默认情况下不需要sugarss解析器(请参阅上面的注释)
@@ -582,4 +582,19 @@ section ol#messageList li{
   -ms-user-select:none;
   user-select:none;
   background:linear-gradient(180deg,#fff,#000)}
+```
+* 增加js代码查看let转换为var的效果
+```
+$ npx webpack
+Hash: fcc429942ed1f1112ea5
+Version: webpack 3.12.0
+Time: 2084ms
+    Asset     Size  Chunks             Chunk Names
+bundle.js  14.3 kB       0  [emitted]  main
+   [0] ./src/js/app.js 602 bytes {0} [built]
+   [1] ./src/js/module-1.js 204 bytes {0} [built]
+   [2] ./src/js/module-2.js 204 bytes {0} [built]
+   [3] ./src/css/style.scss 500 bytes {0} [built]
+   [4] ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/src!./node_modules/sass-loader/dist/cjs.js!./src/css/style.scss 528 bytes {0} [built]
+    + 2 hidden modules
 ```
